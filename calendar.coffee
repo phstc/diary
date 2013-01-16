@@ -1,4 +1,4 @@
-app = {
+window.app = {
   models: {}
 }
 
@@ -114,6 +114,5 @@ $ ->
     "2012-05-03" : [sampleEventData]
   }
 
-  new app.models.Calendar(sampleData)
 
   d3.select(self.frameElement).style("height", "910px")
