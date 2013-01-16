@@ -1,0 +1,33 @@
+body {
+  font: 10px sans-serif;
+  shape-rendering: crispEdges;
+}
+
+.day {
+  opacity: 0.8;
+  stroke: black;
+  stroke-opacity: 0.4;
+}
+
+.day:hover {
+  opacity: 0.6;
+}
+
+
+.empty-day {
+  fill: #CECECE;
+  stroke: white;
+}
+
+.month {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+.month-name {
+  font-size: 12px;
+  text-transform: lowercase;
+  font-weight: bold;
+  text-anchor: middle;
+}
