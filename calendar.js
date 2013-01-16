@@ -7,7 +7,7 @@
   };
 
   app.models.Calendar = (function() {
-    var cellSize, colorScale, day, format, hashtag, height, month, monthName, pickColor, width;
+    var cellSize, colorScale, format, getDay, getMonth, getMonthName, hashtag, height, pickColor, width;
 
     hashtag = /(#[a-zA-Z]*)/g;
 
@@ -19,16 +19,16 @@
 
     colorScale = ["rgb(200,200,200)", "rgb(165,0,38)", "rgb(215,48,39)", "rgb(244,109,67)", "rgb(253,174,97)", "rgb(254,224,139)", "rgb(255,255,191)", "rgb(217,239,139)", "rgb(166,217,106)", "rgb(102,189,99)", "rgb(26,152,80)", "rgb(0,104,55)"];
 
-    day = d3.time.format("%d");
+    getDay = d3.time.format("%d");
 
-    month = d3.time.format("%m");
+    getMonth = d3.time.format("%m");
 
-    monthName = d3.time.format("%b");
+    getMonthName = d3.time.format("%b");
 
     format = d3.time.format("%Y-%m-%d");
 
-    pickColor = function(d) {
-      return colorScale[d];
+    pickColor = function(index) {
+      return colorScale[index % colorScale.length];
     };
 
     function Calendar(data) {
@@ -51,34 +51,34 @@
     };
 
     Calendar.prototype.drawMonthLabels = function() {
-      return this.svg.selectAll(".text").data(function(d) {
-        return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1));
-      }).enter().append("text").attr("x", function(d) {
-        return -23 + day(d) * cellSize;
-      }).attr("y", function(d) {
-        return 22 + month(d) * cellSize;
-      }).attr("class", "month-name").datum(monthName).text(function(d) {
-        return d;
+      return this.svg.selectAll(".text").data(function(year) {
+        return d3.time.months(new Date(year, 0, 1), new Date(year + 1, 0, 1));
+      }).enter().append("text").attr("x", function(date) {
+        return -23 + cellSize;
+      }).attr("y", function(date) {
+        return 22 + getMonth(date) * cellSize;
+      }).attr("class", "month-name").datum(getMonthName).text(function(monthName) {
+        return monthName;
       });
     };
 
     Calendar.prototype.drawDayLabels = function() {
-      return this.svg.selectAll(".text").data(function(d) {
-        return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
-      }).enter().append("text").attr("x", function(d) {
-        return 10 + day(d) * cellSize;
-      }).attr("y", function(d) {
-        return 35 + month(d) * cellSize;
-      }).attr("class", "month-name").datum(day).text(function(d) {
-        return d;
+      return this.svg.selectAll(".text").data(function(year) {
+        return d3.time.days(new Date(year, 0, 1), new Date(year + 1, 0, 1));
+      }).enter().append("text").attr("x", function(date) {
+        return 10 + getDay(date) * cellSize;
+      }).attr("y", function(date) {
+        return 35 + getMonth(date) * cellSize;
+      }).attr("class", "month-name").datum(getDay).text(function(day) {
+        return day;
       });
     };
 
     Calendar.prototype.padCalendarData = function() {
       var _this = this;
-      return d3.time.days(new Date(2012, 0, 1), new Date(2013, 0, 1)).map(function(el) {
-        if (!_this.data[format(el)]) {
-          return _this.data[format(el)] = null;
+      return d3.time.days(new Date(2012, 0, 1), new Date(2013, 0, 1)).map(function(date) {
+        if (!_this.data[format(date)]) {
+          return _this.data[format(date)] = null;
         }
       });
     };

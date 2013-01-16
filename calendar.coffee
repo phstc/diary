@@ -24,13 +24,13 @@ class app.models.Calendar
     "rgb(0,104,55)"
   ]
 
-  day = d3.time.format("%d")
-  month = d3.time.format("%m")
-  monthName = d3.time.format("%b")
+  getDay = d3.time.format("%d")
+  getMonth = d3.time.format("%m")
+  getMonthName = d3.time.format("%b")
   format = d3.time.format("%Y-%m-%d")
 
-  pickColor = (d) ->
-    return colorScale[d]
+  pickColor = (index) ->
+    return colorScale[index % colorScale.length]
 
 
   constructor: (@data) ->
@@ -42,7 +42,7 @@ class app.models.Calendar
 
   prepareHTML: ->
     @svg = d3.select("body").selectAll("svg")
-      .data(d3.range(2012, 2013))
+      .data(d3.range(2012, 2013)) # FIXME: Should come from data
       .enter().append("svg")
       .attr("width", width)
       .attr("height", height)
@@ -50,27 +50,27 @@ class app.models.Calendar
 
   drawMonthLabels: ->
     @svg.selectAll(".text")
-      .data((d) -> return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1)); )
+      .data((year) -> return d3.time.months(new Date(year, 0, 1), new Date(year + 1, 0, 1)); )
       .enter().append("text")
-      .attr("x", (d) -> return -23 + day(d) * cellSize )
-      .attr("y", (d) -> return 22 + month(d) * cellSize )
+      .attr("x", (date) -> return -23 + cellSize )
+      .attr("y", (date) -> return 22 + getMonth(date) * cellSize )
       .attr("class", "month-name")
-      .datum(monthName)
-      .text((d) -> return d )
+      .datum(getMonthName)
+      .text((monthName) -> return monthName )
 
   drawDayLabels: ->
     @svg.selectAll(".text")
-      .data((d) -> return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1)) )
+      .data((year) -> return d3.time.days(new Date(year, 0, 1), new Date(year + 1, 0, 1)) )
       .enter().append("text")
-      .attr("x", (d) -> return 10 + day(d) * cellSize )
-      .attr("y", (d) -> return 35 + month(d) * cellSize )
+      .attr("x", (date) -> return 10 + getDay(date) * cellSize )
+      .attr("y", (date) -> return 35 + getMonth(date) * cellSize )
       .attr("class", "month-name")
-      .datum(day)
-      .text((d) -> return d )
+      .datum(getDay)
+      .text((day) -> return day)
 
   padCalendarData: =>
-    d3.time.days(new Date(2012, 0, 1), new Date(2013, 0, 1)).map (el) =>
-        @data[format(el)] = null unless @data[format(el)]
+    d3.time.days(new Date(2012, 0, 1), new Date(2013, 0, 1)).map (date) =>
+        @data[format(date)] = null unless @data[format(date)]
 
   redraw: () =>
     @svg.selectAll(".day")
