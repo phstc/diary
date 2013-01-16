@@ -78,7 +78,7 @@ class app.models.Calendar
       .enter().append("rect")
       .attr("height", cellSize)
       .attr("class", "day")
-      .attr("fill", (d) => return pickColor(if @data[d] then @data[d].quantity() else 0) ) # testing quantity()
+      .attr("fill", @chooseColor)
       .attr("x", (d) -> return parseInt(d.split("-")[2]) * cellSize )
       .attr("y", (d) -> return parseInt(d.split("-")[1]) * cellSize ) # FIXME: Octal
       .attr("width", cellSize)
@@ -86,27 +86,34 @@ class app.models.Calendar
       .duration(500)
       .attr("fill-opacity", 1)
 
+  chooseColor: (d) =>
+    if @data[d]
+      colorIndex = d3.sum(@data[d], (d) -> d.quantity)
+    else
+      colorIndex = 0
+    return pickColor(colorIndex)
+
 
 $ ->
 
-  event_data = {
+  sampleEventData = {
     title: "Test",
     created_at: new Date(),
-    quantity: -> return Math.floor(Math.random()*11) + 1
+    quantity: 1
   }
 
-  data = {
-    "2012-01-01" : event_data,
-    "2012-01-02" : event_data,
-    "2012-01-03" : event_data,
-    "2012-01-04" : event_data,
-    "2012-01-05" : event_data,
-    "2012-01-06" : event_data,
-    "2012-03-03" : event_data,
-    "2012-04-03" : event_data,
-    "2012-05-03" : event_data
+  sampleData = {
+    "2012-01-01" : [sampleEventData],
+    "2012-01-02" : [sampleEventData],
+    "2012-01-03" : [sampleEventData, sampleEventData],
+    "2012-01-04" : [sampleEventData],
+    "2012-01-05" : [sampleEventData, sampleEventData, sampleEventData],
+    "2012-01-06" : [sampleEventData, sampleEventData, sampleEventData, sampleEventData],
+    "2012-03-03" : [sampleEventData],
+    "2012-04-03" : [sampleEventData, sampleEventData, sampleEventData, sampleEventData, sampleEventData, sampleEventData],
+    "2012-05-03" : [sampleEventData]
   }
 
-  new app.models.Calendar(data)
+  new app.models.Calendar(sampleData)
 
   d3.select(self.frameElement).style("height", "910px")

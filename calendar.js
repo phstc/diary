@@ -34,6 +34,8 @@
 
     function Calendar(data) {
       this.data = data;
+      this.chooseColor = __bind(this.chooseColor, this);
+
       this.redraw = __bind(this.redraw, this);
 
       this.padCalendarData = __bind(this.padCalendarData, this);
@@ -86,13 +88,23 @@
       var _this = this;
       return this.svg.selectAll(".day").data(function(d) {
         return d3.keys(_this.data);
-      }).enter().append("rect").attr("height", cellSize).attr("class", "day").attr("fill", function(d) {
-        return pickColor(_this.data[d] ? _this.data[d].quantity() : 0);
-      }).attr("x", function(d) {
+      }).enter().append("rect").attr("height", cellSize).attr("class", "day").attr("fill", this.chooseColor).attr("x", function(d) {
         return parseInt(d.split("-")[2]) * cellSize;
       }).attr("y", function(d) {
         return parseInt(d.split("-")[1]) * cellSize;
       }).attr("width", cellSize).transition().duration(500).attr("fill-opacity", 1);
+    };
+
+    Calendar.prototype.chooseColor = function(d) {
+      var colorIndex;
+      if (this.data[d]) {
+        colorIndex = d3.sum(this.data[d], function(d) {
+          return d.quantity;
+        });
+      } else {
+        colorIndex = 0;
+      }
+      return pickColor(colorIndex);
     };
 
     return Calendar;
@@ -100,26 +112,24 @@
   })();
 
   $(function() {
-    var data, event_data;
-    event_data = {
+    var sampleData, sampleEventData;
+    sampleEventData = {
       title: "Test",
       created_at: new Date(),
-      quantity: function() {
-        return Math.floor(Math.random() * 11) + 1;
-      }
+      quantity: 1
     };
-    data = {
-      "2012-01-01": event_data,
-      "2012-01-02": event_data,
-      "2012-01-03": event_data,
-      "2012-01-04": event_data,
-      "2012-01-05": event_data,
-      "2012-01-06": event_data,
-      "2012-03-03": event_data,
-      "2012-04-03": event_data,
-      "2012-05-03": event_data
+    sampleData = {
+      "2012-01-01": [sampleEventData],
+      "2012-01-02": [sampleEventData],
+      "2012-01-03": [sampleEventData, sampleEventData],
+      "2012-01-04": [sampleEventData],
+      "2012-01-05": [sampleEventData, sampleEventData, sampleEventData],
+      "2012-01-06": [sampleEventData, sampleEventData, sampleEventData, sampleEventData],
+      "2012-03-03": [sampleEventData],
+      "2012-04-03": [sampleEventData, sampleEventData, sampleEventData, sampleEventData, sampleEventData, sampleEventData],
+      "2012-05-03": [sampleEventData]
     };
-    new app.models.Calendar(data);
+    new app.models.Calendar(sampleData);
     return d3.select(self.frameElement).style("height", "910px");
   });
 
