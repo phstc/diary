@@ -1,2 +1,2 @@
-diary
-=====
+`bi`
+`be rackup`
