@@ -1,4 +1,4 @@
-$ ->
+window.teste = (tweets) ->
   hash = {}
 
   buildEvent = (text) ->
@@ -38,3 +38,6 @@ $ ->
     $("body").append("<span onClick='window.calendar.update(\""+el+"\");'>" + el + "</span>")
 
   $("span:nth(0)").html("Todos")
+
+$ ->
+  $.ajax({ url: "https://api.twitter.com/1/statuses/user_timeline.json?include_entities=false&include_rts=true&screen_name=buccolo&count=200&trim_user=true&callback=window.teste", dataType: "jsonp", method: "get" })
