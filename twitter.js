@@ -2,13 +2,21 @@
 (function() {
 
   $(function() {
-    var buildEvent, hash;
+    var buildEvent, hasHashTags, hash, hashtags, tags,
+      _this = this;
     hash = {};
     buildEvent = function(text) {
       return {
-        title: text,
-        quantity: 1
+        text: text
       };
+    };
+    hashtags = function(eventText) {
+      return eventText.split(" ").filter(function(el) {
+        return el[0] === "#";
+      });
+    };
+    hasHashTags = function(tweet) {
+      return hashtags(tweet).length > 0;
     };
     tweets.map(function(el) {
       var date, day, formattedDate, month;
@@ -23,7 +31,24 @@
       }
     });
     console.log(hash);
-    return new app.models.Calendar(hash);
+    tags = [];
+    d3.map(hash).values().forEach(function(eventArray) {
+      return eventArray.forEach(function(event) {
+        if (hashtags(event.text).length > 0) {
+          return tags.push(hashtags(event.text));
+        }
+      });
+    });
+    window.data = hash;
+    window.tags = $.unique(tags.reduce(function(a, b) {
+      return a.concat(b);
+    }));
+    window.tags.unshift("", "#", "@");
+    window.calendar = new app.models.Calendar(hash);
+    window.tags.forEach(function(el) {
+      return $("body").append("<span onClick='window.calendar.update(\"" + el + "\");'>" + el + "</span>");
+    });
+    return $("span:nth(0)").html("Todos");
   });
 
 }).call(this);

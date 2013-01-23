@@ -31,3 +31,13 @@ body {
   font-weight: bold;
   text-anchor: middle;
 }
+
+span {
+  font-family: "Helvetica Neue";
+  font-size: 15px;
+  display: block;
+  float: left;
+  margin: 6px 10px;
+  font-weight: bold;
+  cursor: pointer;
+}

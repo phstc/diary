@@ -7,13 +7,17 @@
   };
 
   app.models.Calendar = (function() {
-    var cellSize, colorScale, format, getDay, getMonth, getMonthName, hashtag, height, pickColor, width;
+    var cellSize, colorScale, format, getDay, getMonth, getMonthName, hashtags, height, pickColor, width;
 
-    hashtag = /(#[a-zA-Z]*)/g;
+    hashtags = function(eventText) {
+      return eventText.split(" ").filter(function(el) {
+        return el[0] === "#";
+      });
+    };
 
     width = 1240;
 
-    height = 660;
+    height = 520;
 
     cellSize = 38;
 
@@ -33,7 +37,13 @@
 
     function Calendar(data) {
       this.data = data;
+      this.outputControllers = __bind(this.outputControllers, this);
+
+      this.filterEvent = __bind(this.filterEvent, this);
+
       this.chooseColor = __bind(this.chooseColor, this);
+
+      this.update = __bind(this.update, this);
 
       this.redraw = __bind(this.redraw, this);
 
@@ -94,16 +104,32 @@
       }).attr("width", cellSize).transition().duration(500).attr("fill-opacity", 1);
     };
 
+    Calendar.prototype.update = function(filter) {
+      this.filter = filter;
+      return this.svg.selectAll(".day").transition().duration(500).attr("fill", this.chooseColor);
+    };
+
     Calendar.prototype.chooseColor = function(d) {
-      var colorIndex;
+      var colorIndex, data;
       if (this.data[d]) {
-        colorIndex = d3.sum(this.data[d], function(d) {
-          return d.quantity;
-        });
+        data = this.filter ? this.data[d].filter(this.filterEvent) : this.data[d];
+        colorIndex = data.length;
       } else {
         colorIndex = 0;
       }
       return pickColor(colorIndex);
+    };
+
+    Calendar.prototype.filterEvent = function(event) {
+      return event.text.indexOf(this.filter) !== -1;
+    };
+
+    Calendar.prototype.outputControllers = function() {};
+
+    Calendar.prototype.hashtags = function(eventText) {
+      return eventText.split(" ").filter(function(el) {
+        return el[0] === "#";
+      });
     };
 
     return Calendar;
@@ -113,9 +139,8 @@
   $(function() {
     var sampleData, sampleEventData;
     sampleEventData = {
-      title: "Test",
-      created_at: new Date(),
-      quantity: 1
+      text: "Test",
+      created_at: new Date()
     };
     sampleData = {
       "2012-01-01": [sampleEventData],

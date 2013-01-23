@@ -3,10 +3,12 @@ window.app = {
 }
 
 class app.models.Calendar
-  hashtag = /(#[a-zA-Z]*)/g
+
+  hashtags = (eventText) ->
+    eventText.split(" ").filter (el) -> el[0] == "#"
 
   width = 1240
-  height = 660
+  height = 520
   cellSize = 38
 
   colorScale = [
@@ -72,7 +74,7 @@ class app.models.Calendar
     d3.time.days(new Date(2012, 0, 1), new Date(2013, 0, 1)).map (date) =>
         @data[format(date)] = null unless @data[format(date)]
 
-  redraw: () =>
+  redraw: =>
     @svg.selectAll(".day")
       .data((d) => return d3.keys(@data) )
       .enter().append("rect")
@@ -86,20 +88,34 @@ class app.models.Calendar
       .duration(500)
       .attr("fill-opacity", 1)
 
+  update: (@filter) =>
+    @svg.selectAll(".day")
+      .transition()
+      .duration(500)
+      .attr("fill", @chooseColor)
+
   chooseColor: (d) =>
     if @data[d]
-      colorIndex = d3.sum(@data[d], (d) -> d.quantity)
+      data = if @filter then @data[d].filter(@filterEvent) else @data[d]
+      colorIndex = data.length
     else
       colorIndex = 0
     return pickColor(colorIndex)
+
+  filterEvent: (event) =>
+    event.text.indexOf(@filter) != -1 # there should be a better non-2001 way of doing this
+
+  outputControllers: =>
+
+  hashtags: (eventText) ->
+    eventText.split(" ").filter (el) -> el[0] == "#"
 
 
 $ ->
 
   sampleEventData = {
-    title: "Test",
-    created_at: new Date(),
-    quantity: 1
+    text: "Test",
+    created_at: new Date()
   }
 
   sampleData = {
