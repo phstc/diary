@@ -4,9 +4,6 @@ window.app = {
 
 class app.models.Calendar
 
-  hashtags = (eventText) ->
-    eventText.split(" ").filter (el) -> el[0] == "#"
-
   width = 1240
   height = 520
   cellSize = 38
@@ -34,7 +31,6 @@ class app.models.Calendar
   pickColor = (index) ->
     return colorScale[index % colorScale.length]
 
-
   constructor: (@data) ->
     @prepareHTML()
     @drawMonthLabels()
@@ -44,7 +40,7 @@ class app.models.Calendar
 
   prepareHTML: ->
     @svg = d3.select("body").selectAll("svg")
-      .data(d3.range(2012, 2013)) # FIXME: Should come from data
+      .data([2013]) # FIXME: Should come from data
       .enter().append("svg")
       .attr("width", width)
       .attr("height", height)
@@ -104,12 +100,6 @@ class app.models.Calendar
 
   filterEvent: (event) =>
     event.text.indexOf(@filter) != -1 # there should be a better non-2001 way of doing this
-
-  outputControllers: =>
-
-  hashtags: (eventText) ->
-    eventText.split(" ").filter (el) -> el[0] == "#"
-
 
 $ ->
 

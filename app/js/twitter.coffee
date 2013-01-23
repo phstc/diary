@@ -1,43 +1,40 @@
-window.teste = (tweets) ->
-  hash = {}
+class app.models.Twitter
 
-  buildEvent = (text) ->
-    return {
-      text: text
-    }
+  constructor: (@data = {}) ->
 
   hashtags = (eventText) ->
     eventText.split(" ").filter (el) -> el[0] == "#"
 
-  hasHashTags = (tweet) ->
-    hashtags(tweet).length > 0
+  callback: (@tweets) =>
 
-  tweets.map (el) =>
-    date = new Date(el.created_at)
-    month = date.getMonth() + 1
-    day = date.getDate()
-    formattedDate = date.getFullYear() + "-" + (if month > 9 then month else "0" + month) + "-" + (if day > 9 then day else "0" + day)
-    if hash[formattedDate]
-      hash[formattedDate].push buildEvent(el.text)
-    else
-      hash[formattedDate] = [buildEvent(el.text)]
+    @tweets.map (el) =>
+      date = new Date(el.created_at)
+      month = date.getMonth() + 1
+      day = date.getDate()
 
-  console.log(hash)
+      formattedDate = date.getFullYear() + "-" + (if month > 9 then month else "0" + month) + "-" + (if day > 9 then day else "0" + day)
 
-  tags = []
-  d3.map(hash).values().forEach (eventArray) =>
-    eventArray.forEach (event) =>
-      tags.push hashtags(event.text) if hashtags(event.text).length > 0
+      if @data[formattedDate]
+        @data[formattedDate].push { text: el.text }
+      else
+        @data[formattedDate] = [{ text: el.text }]
 
-  window.data = hash
-  window.tags = $.unique(tags.reduce (a,b) -> a.concat(b))
-  window.tags.unshift("", "#", "@")
-  window.calendar = new app.models.Calendar(hash)
+    tags = []
+    d3.map(@data).values().forEach (eventArray) =>
+      eventArray.forEach (event) =>
+        tags.push hashtags(event.text) if hashtags(event.text).length > 0
 
-  window.tags.forEach (el) ->
-    $("body").append("<span onClick='window.calendar.update(\""+el+"\");'>" + el + "</span>")
+    window.tags = if tags.length > 0 then $.unique(tags.reduce (a,b) -> a.concat(b)) else tags
+    window.tags.unshift("problema", "manutenção", "volta", "correios") if window.username == "elo7status" # demo purpose
+    window.tags.unshift("", "#", "@")
+    window.calendar = new app.models.Calendar(@data)
 
-  $("span:nth(0)").html("Todos")
+    window.tags.forEach (el) ->
+      $("body").append("<span onClick='window.calendar.update(\""+el+"\");'>" + el + "</span>")
+
+    $("span:nth(0)").html("Todos")
 
 $ ->
-  $.ajax({ url: "https://api.twitter.com/1/statuses/user_timeline.json?include_entities=false&include_rts=true&screen_name=buccolo&count=200&trim_user=true&callback=window.teste", dataType: "jsonp", method: "get" })
+  window.twitter = new app.models.Twitter()
+
+  $.ajax({ url: "https://api.twitter.com/1/statuses/user_timeline.json?include_entities=false&include_rts=true&screen_name="+window.username+"&count=200&trim_user=true&callback=window.twitter.callback", dataType: "jsonp", method: "get" })
