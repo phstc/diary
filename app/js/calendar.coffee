@@ -67,7 +67,15 @@ class app.models.Calendar
       .text((day) -> return day)
 
   padCalendarData: =>
-    d3.time.days(new Date(2012, 0, 1), new Date(2013, 0, 1)).map (date) =>
+    today = new Date()
+
+    yesterdayOneYearAgo = new Date()
+    yesterdayOneYearAgo.setFullYear(today.getFullYear() - 1)
+    yesterdayOneYearAgo.setDate(today.getDate())
+
+    tomorrow = today.setDate(today.getDate() + 1)
+
+    d3.time.days(yesterdayOneYearAgo, tomorrow).map (date) =>
         @data[format(date)] = null unless @data[format(date)]
 
   redraw: =>
